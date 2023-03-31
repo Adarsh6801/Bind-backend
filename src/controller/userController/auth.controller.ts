@@ -14,18 +14,17 @@ const generateToken = (user: { _id: ObjectId; name: string }) => {
   });
 };
 
-const otpGeneration=()=>{
-return  parseInt(Math.random().toString().substr(2, 6));
+const otpGeneration = () => {
+  return parseInt(Math.random().toString().substr(2, 6));
+};
 
-}
-var Genotp=otpGeneration()
+let Genotp!:number;
 
 var rname: any;
 var rEmail: any;
 var rPassword: any;
 
 // otp
-
 
 let mailTransport = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -38,7 +37,6 @@ let mailTransport = nodemailer.createTransport({
     pass: process.env.APP_PASSWORD_EMAIL,
   },
 });
-
 
 //user register
 export const register: RequestHandler = async (req, res) => {
@@ -54,7 +52,9 @@ export const register: RequestHandler = async (req, res) => {
       rname = name;
       rEmail = email;
       rPassword = password;
-      otpGeneration()
+      Genotp=otpGeneration()
+      console.log(Genotp,"register");
+      
       let details = {
         from: process.env.EMAIL_OTP,
         to: email,
@@ -86,7 +86,8 @@ export const register: RequestHandler = async (req, res) => {
 
 export const emailOtp: RequestHandler = async (req, res) => {
   try {
-    const otp = req.body.otp;
+    let otp = req.body.otp;
+    otp = parseInt(otp);
     if (otp == Genotp) {
       if (rEmail) {
         const salt = await bcrypt.genSalt();
@@ -128,11 +129,11 @@ export const emailOtp: RequestHandler = async (req, res) => {
   }
 };
 
-
 //resend otp
-export const resendOtp:RequestHandler=async (req,res)=>{
-  try{
-    otpGeneration()
+export const resendOtp: RequestHandler = async (req, res) => {
+  try {
+    Genotp=otpGeneration()
+    console.log(Genotp,'resend otp');
     let details = {
       from: process.env.EMAIL_OTP,
       to: rEmail,
@@ -154,10 +155,27 @@ export const resendOtp:RequestHandler=async (req,res)=>{
           .send({ status: true, email: true, msg: "email sent succesfuly" });
       }
     });
-  }catch(err){
-
+  } catch (err) {
+    console.log(err);
+    
   }
+};
+
+
+// otp expires 
+export const otpExpire: RequestHandler=async (req,res)=>{
+  try{
+    Genotp=otpGeneration()
+    console.log(Genotp);
+    res
+    .status(200)
+    .send({ status: false, msg: "The otp is expired resend the OTP" });
 }
+  catch(error){
+    console.log(error);
+    
+  }
+};
 
 //user and mentor login
 export const login: RequestHandler = async (req, res) => {
@@ -200,3 +218,5 @@ export const login: RequestHandler = async (req, res) => {
     console.log(error);
   }
 };
+
+
