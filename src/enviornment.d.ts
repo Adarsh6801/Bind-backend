@@ -7,6 +7,8 @@ declare global{
             MONGO_URI:string;
             NODE_ENV:"development" | "production";
             JWT_SECREAT_KEY:Secret;
+            EMAIL_OTP:string;
+            APP_PASSWORD_EMAIL:string;
         }
     }
 }

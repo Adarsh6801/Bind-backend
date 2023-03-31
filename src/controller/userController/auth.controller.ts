@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { ObjectId } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
 
 import { UserModel } from "../../models/user.model";
 import { RoleModel } from "../../models/role.model";
@@ -13,41 +14,150 @@ const generateToken = (user: { _id: ObjectId; name: string }) => {
   });
 };
 
+const otpGeneration=()=>{
+return  parseInt(Math.random().toString().substr(2, 6));
+
+}
+var Genotp=otpGeneration()
+
+var rname: any;
+var rEmail: any;
+var rPassword: any;
+
+// otp
+
+
+let mailTransport = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  service: "Gmail",
+
+  auth: {
+    user: process.env.EMAIL_OTP,
+    pass: process.env.APP_PASSWORD_EMAIL,
+  },
+});
+
+
 //user register
 export const register: RequestHandler = async (req, res) => {
   try {
     const { email, name, password } = req.body;
+
     const user = await UserModel.findOne({ email: email });
     if (user) {
-      return res.status(200).send({ error: "Email already taken" });
+      return res
+        .status(200)
+        .send({ status: false, error: "Email already taken" });
     } else {
-      const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(password, salt);
-      new UserModel({
-        name: name,
-        email: email,
-        password: hashedPassword,
-      })
-        .save()
-        .then((user: any) => {
-          new RoleModel({
-            userId: user._id,
-          }).save();
-
-          const token = generateToken(user);
-          res.status(201).send({
-            msg: "User Register Successfully",
-            status: true,
-            token,
-            user: user._id,
-          });
-        })
-        .catch((error) => res.status(200).send({ error, status: false }));
+      rname = name;
+      rEmail = email;
+      rPassword = password;
+      otpGeneration()
+      let details = {
+        from: process.env.EMAIL_OTP,
+        to: email,
+        subject: "Otp for registration is: ",
+        html:
+          "<h3>OTP for account verification is </h3>" +
+          "<h1 style='font-weight:bold;'>" +
+          Genotp +
+          "</h1>", // html body
+      };
+      mailTransport.sendMail(details, (err) => {
+        if (err) {
+          console.log(err);
+          res.status(200).send({ status: false, error: err });
+        } else {
+          console.log("email is sent");
+          res
+            .status(200)
+            .send({ status: true, email: true, msg: "email sent succesfuly" });
+        }
+      });
     }
   } catch (error) {
     console.log(error);
   }
 };
+
+//otp verification
+
+export const emailOtp: RequestHandler = async (req, res) => {
+  try {
+    const otp = req.body.otp;
+    if (otp == Genotp) {
+      if (rEmail) {
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(rPassword, salt);
+        new UserModel({
+          name: rname,
+          email: rEmail,
+          password: hashedPassword,
+        })
+          .save()
+          .then((user: any) => {
+            new RoleModel({
+              userId: user._id,
+            }).save();
+
+            const token = generateToken(user);
+            res.status(201).send({
+              msg: "User Register Successfully",
+              status: true,
+              token,
+              user: user._id,
+            });
+          })
+          .catch((error) => res.status(200).send({ error, status: false }));
+      } else {
+        res.status(201).send({
+          msg: "Your email is not getted go back to the register form",
+          status: false,
+        });
+      }
+    } else {
+      res.status(201).send({
+        msg: "You have entered the wrong otp",
+        status: false,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+//resend otp
+export const resendOtp:RequestHandler=async (req,res)=>{
+  try{
+    otpGeneration()
+    let details = {
+      from: process.env.EMAIL_OTP,
+      to: rEmail,
+      subject: "Otp for registration is: ",
+      html:
+        "<h3>OTP for account verification is </h3>" +
+        "<h1 style='font-weight:bold;'>" +
+        Genotp +
+        "</h1>", // html body
+    };
+    mailTransport.sendMail(details, (err) => {
+      if (err) {
+        console.log(err);
+        res.status(200).send({ status: false, error: err });
+      } else {
+        console.log("email is sent");
+        res
+          .status(200)
+          .send({ status: true, email: true, msg: "email sent succesfuly" });
+      }
+    });
+  }catch(err){
+
+  }
+}
 
 //user and mentor login
 export const login: RequestHandler = async (req, res) => {
@@ -56,7 +166,6 @@ export const login: RequestHandler = async (req, res) => {
     const user = await UserModel.findOne({ email: email })
       .then((user: any) => {
         if (user.status) {
-          
           bcrypt
             .compare(password, user.password)
             .then((result) => {
@@ -78,18 +187,16 @@ export const login: RequestHandler = async (req, res) => {
               });
             })
             .catch((error) => {
-             
+              console.log(error);
             });
         } else {
           res.status(200).send({ status: false, error: "user is now blocked" });
         }
       })
-      .catch((error) => {
-     
-        res.status(404).send({ status: false, error: "Email not found" });
+      .catch(() => {
+        res.send({ status: false, error: "Email is not found" });
       });
   } catch (error) {
- console.log(error);
- 
+    console.log(error);
   }
 };
