@@ -18,7 +18,7 @@ const otpGeneration = () => {
   return parseInt(Math.random().toString().substr(2, 6));
 };
 
-let Genotp!:number;
+let Genotp!: number;
 
 var rname: any;
 var rEmail: any;
@@ -52,9 +52,9 @@ export const register: RequestHandler = async (req, res) => {
       rname = name;
       rEmail = email;
       rPassword = password;
-      Genotp=otpGeneration()
-      console.log(Genotp,"register");
-      
+      Genotp = otpGeneration();
+      console.log(Genotp, "register");
+
       let details = {
         from: process.env.EMAIL_OTP,
         to: email,
@@ -132,8 +132,8 @@ export const emailOtp: RequestHandler = async (req, res) => {
 //resend otp
 export const resendOtp: RequestHandler = async (req, res) => {
   try {
-    Genotp=otpGeneration()
-    console.log(Genotp,'resend otp');
+    Genotp = otpGeneration();
+    console.log(Genotp, "resend otp");
     let details = {
       from: process.env.EMAIL_OTP,
       to: rEmail,
@@ -157,23 +157,19 @@ export const resendOtp: RequestHandler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    
   }
 };
 
-
-// otp expires 
-export const otpExpire: RequestHandler=async (req,res)=>{
-  try{
-    Genotp=otpGeneration()
+// otp expires
+export const otpExpire: RequestHandler = async (req, res) => {
+  try {
+    Genotp = otpGeneration();
     console.log(Genotp);
     res
-    .status(200)
-    .send({ status: false, msg: "The otp is expired resend the OTP" });
-}
-  catch(error){
+      .status(200)
+      .send({ status: false, msg: "The otp is expired resend the OTP" });
+  } catch (error) {
     console.log(error);
-    
   }
 };
 
@@ -219,4 +215,58 @@ export const login: RequestHandler = async (req, res) => {
   }
 };
 
+//social Login
 
+export const socialLogin: RequestHandler = async (req, res) => {
+  try {
+    const { name, email, profilePhotoUrl, loginType } = req.body;
+    await UserModel.findOne({ email: email }).then(async (user) => {
+      if (user) {        
+        if (user.status) {
+          await RoleModel.findOne({ userId: user._id }).then((data) => {
+            if (data) {
+              res
+                .status(200)
+                .send({
+                  status: true,
+                  msg: "User Login successfully",
+                  isMentor: data.isMentor,
+                });
+            }
+          });
+        } else {          
+          res.status(200).send({ status: false, error: "user is now blocked" });
+        }
+      } else {
+        new UserModel({
+          name: name,
+          email: email,
+          profilePhotoUrl: profilePhotoUrl,
+          loginType: loginType,
+          password: `this is ${loginType} login`,
+        })
+          .save()
+          .then((user) => {
+            new RoleModel({
+              userId: user._id,
+            }).save();
+            res.status(201).send({
+              msg: "User Social Login Successfully",
+              status: true,
+              user: user._id,
+            });
+          });
+      }
+    });
+  } catch (error) {}
+};
+
+//forgot password
+
+export const forgotPassword:RequestHandler= async(req,res)=>{
+  try{
+
+  }catch(error){
+    
+  }
+}

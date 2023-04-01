@@ -9,6 +9,8 @@ export interface User{
     phone:number;
     status:boolean;
     currentCourse:string;
+    profilePhotoUrl:string;
+    loginType:string;
 
 }
 
@@ -17,7 +19,9 @@ export const UserSchema = new Schema<User>({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     address: {type: String},
-    status:{type:Boolean,default:true}
+    status:{type:Boolean,default:true},
+    profilePhotoUrl:{type:String},
+    loginType:{type:String,default:"Local"}
     
 }, {
     timestamps: true,
