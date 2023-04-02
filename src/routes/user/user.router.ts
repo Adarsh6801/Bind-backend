@@ -1,7 +1,7 @@
 import express from "express"
 
 import * as AuthController from "../../controller/userController/auth.controller"
-
+import {authCheck} from '../../middleware/auth.middleware'
 
 const router=express.Router()
 

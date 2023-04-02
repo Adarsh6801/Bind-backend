@@ -6,13 +6,15 @@ export interface Role{
     isAdmin: boolean;
     isMentor:boolean;
     isMentorSubscription:boolean;
+    role:string;
 }
 
 export const RoleSchema = new Schema<Role>({
     userId: {type: String, required: true},
     isMentor: {type: Boolean, default: false},
     isAdmin: {type: Boolean, default: false},
-    isMentorSubscription:{type:Boolean,default:false}
+    isMentorSubscription:{type:Boolean,default:false},
+    role:{type:String,default:"user"}
 }, {
     timestamps: true,
     toJSON:{

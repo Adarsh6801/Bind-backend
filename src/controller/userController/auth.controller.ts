@@ -4,12 +4,14 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 
+
 import { UserModel } from "../../models/user.model";
 import { RoleModel } from "../../models/role.model";
+import { AdminModel } from "../../models/admin.model";
 
 //json webtoken creating function
-const generateToken = (user: { _id: ObjectId; name: string }) => {
-  return jwt.sign({ userId: user._id }, process.env.JWT_SECREAT_KEY!, {
+const generateToken = (user: { _id: ObjectId; name: string,role:string }) => {
+  return jwt.sign({ userId: user._id,name:user.name,role:user.role }, process.env.JWT_SECREAT_KEY!, {
     expiresIn: "1h",
   });
 };
@@ -188,8 +190,14 @@ export const login: RequestHandler = async (req, res) => {
                   .status(200)
                   .send({ status: false, error: "Password does not match" });
               }
-              const token = generateToken(user);
+              
               RoleModel.findOne({ userId: user._id }).then((role: any) => {
+                const payload:any={
+                  _id:user.id,
+                  name:user.name,
+                  role:role.role
+                }                
+                const token = generateToken(payload);
                 return res.status(200).send({
                   msg: " Login Successful...!",
                   userName: user.name,
@@ -225,16 +233,26 @@ export const socialLogin: RequestHandler = async (req, res) => {
         if (user.status) {
           await RoleModel.findOne({ userId: user._id }).then((data) => {
             if (data) {
+              const payload:any={
+                _id:user.id,
+                name:user.name,
+                role:data.role
+              }  
+              console.log(payload,'payload');
+              
+              let token=generateToken(payload)
+              console.log(token,'token');
               res
                 .status(200)
                 .send({
                   status: true,
                   msg: "User Login successfully",
                   isMentor: data.isMentor,
+                  token
                 });
             }
           });
-        } else {          
+        } else {
           res.status(200).send({ status: false, error: "user is now blocked" });
         }
       } else {
@@ -249,12 +267,25 @@ export const socialLogin: RequestHandler = async (req, res) => {
           .then((user) => {
             new RoleModel({
               userId: user._id,
-            }).save();
-            res.status(201).send({
-              msg: "User Social Login Successfully",
-              status: true,
-              user: user._id,
-            });
+            }).save()
+            .then((role)=>{
+              const payload:any={
+                _id:user.id,
+                name:user.name,
+                role:role.role
+              }
+              let token=generateToken(payload)
+              console.log(token,'token');
+              
+              res.status(201).send({
+                msg: "User Social Login Successfully",
+                status: true,
+                user: user._id,
+                token
+              });
+            })
+            
+        
           });
       }
     });

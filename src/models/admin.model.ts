@@ -1,28 +1,22 @@
 import {Schema, model} from 'mongoose';
 
-export interface User{
+export interface Admin{
     id:string;
     email:string;
     password: string;
     name:string;
-    address:string;
     phone:number;
     status:boolean;
-    currentCourse:string;
     profilePhotoUrl:string;
-    loginType:string;
-    
+
 }
 
-export const UserSchema = new Schema<User>({
+export const AadminSchema = new Schema<Admin>({
     name: {type: String, required: true},
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
-    address: {type: String},
     status:{type:Boolean,default:true},
     profilePhotoUrl:{type:String},
-    loginType:{type:String,default:"Local"}
-    
 }, {
     timestamps: true,
     toJSON:{
@@ -33,4 +27,4 @@ export const UserSchema = new Schema<User>({
     }
 });
 
-export const UserModel = model<User>('user', UserSchema);
+export const AdminModel = model<Admin>('admin', AadminSchema);
