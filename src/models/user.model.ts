@@ -20,7 +20,7 @@ export const UserSchema = new Schema<User>({
     password: {type: String, required: true},
     address: {type: String},
     status:{type:Boolean,default:true},
-    profilePhotoUrl:{type:String},
+    profilePhotoUrl:{type:String,default:`\BIND\bind-frontend\src\assets\images\default_image.png`},
     loginType:{type:String,default:"Local"}
     
 }, {

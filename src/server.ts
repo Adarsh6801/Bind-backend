@@ -8,6 +8,7 @@ const app=express();
 import { dbConnect } from "./configs/database.config";
 
 import usersRouter from "./routes/user/user.router"
+import adminRouter from "./routes/admin/admin.router"
 
 dbConnect()
 
@@ -23,6 +24,7 @@ app.use(cors({
 }));
 app.use(express.json())
 app.use('/user',usersRouter);
+app.use('/admin',adminRouter)
 
 
 app.listen(PORT,()=>{
