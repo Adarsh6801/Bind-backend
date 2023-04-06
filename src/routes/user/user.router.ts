@@ -11,5 +11,6 @@ router.post('/auth/email-verify',AuthController.emailOtp);
 router.get('/auth/otp-expires',AuthController.otpExpire);
 router.get('/auth/email-resend',AuthController.resendOtp);
 router.post('/auth/social-login',AuthController.socialLogin);
+router.get('/auth/middlewarecheck',authCheck)
 
 export default router;

@@ -16,9 +16,13 @@ export const getMentors: RequestHandler = async (req, res) => {
 // Block Mentors
 export const blockMentor: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     console.log(id, "id id id ");
-    await UserModel.findOneAndUpdate({ _id: id }, { $set: { status: false } });
+    await UserModel.findOneAndUpdate({ _id: id }, { $set: { status: false } })
+    .then((mentor)=>{
+      const name=mentor?.name
+      res.status(200).json({ status: true,msg:`Mentor ${name} is Blocked` });
+    })
     res.status(200).json({ status: true });
   } catch (error) {
     console.log(error);
@@ -28,10 +32,14 @@ export const blockMentor: RequestHandler = async (req, res) => {
 //Un-block mentor
 export const unblockMentor: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     console.log(id, "id id id ");
-    await UserModel.findOneAndUpdate({ _id: id }, { $set: { status: true } });
-    res.status(200).json({ status: true });
+    await UserModel.findOneAndUpdate({ _id: id }, { $set: { status: true } })
+    .then((mentor)=>{
+      const name=mentor?.name
+      res.status(200).json({ status: true,msg:`Mentor ${name} is Unblocked` });
+    })
+
   } catch (error) {
     console.log(error);
   }
@@ -40,12 +48,12 @@ export const unblockMentor: RequestHandler = async (req, res) => {
 //remove from mentor
 export const removeMentor:RequestHandler=async (req,res)=>{
     try{
-        const {roleid}=req.query;
+        const {roleid}=req.params;
         await RoleModel.findByIdAndUpdate(
             {_id:roleid},
             {$set:{isMentor:false,role:"user"}}
             )
-            .then(()=>{
+            .then((mentor)=>{
                 res
                 .status(200)
                 .send({ status: true, msg: "User removed from mentor" });
@@ -73,7 +81,7 @@ export const requestsForMentor: RequestHandler = async (req, res) => {
 // Accept the Mentor reques
 export const acceptRequestForMentor: RequestHandler = async (req, res) => {
   try {
-    const { roleid } = req.query;
+    const { roleid } = req.params;
     await RoleModel.findByIdAndUpdate(
       { _id: roleid },
       { $set: { isMentor: true, role: "mentor", isRequestedForMentor: false } }
@@ -99,7 +107,7 @@ export const acceptRequestForMentor: RequestHandler = async (req, res) => {
 
 export const declineRequestForMentor:RequestHandler=async (req,res)=>{
     try{
-        const { roleid } = req.query;        
+        const { roleid } = req.params;        
         const user= await RoleModel.findOne({_id:roleid}).populate('userId')
         console.log(user,'role role role');
         await RoleModel.findByIdAndUpdate(

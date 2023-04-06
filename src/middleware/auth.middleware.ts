@@ -13,5 +13,7 @@ export const authCheck:RequestHandler=async (req,res,next)=>{
     if(!payload){
         return res.status(401).send('Un authorised request')
     }
+    console.log(payload,'payload.....');
+    
     res.locals.payload=payload
 }
