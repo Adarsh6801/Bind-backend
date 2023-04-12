@@ -5,6 +5,7 @@ import * as mentorController from "../../controller/adminController/mentor.contr
 import * as programController from "../../controller/adminController/program.category.controller";
 import * as languageController from "../../controller/adminController/language.controller";
 import * as mentorSubscriptionController from "../../controller/adminController/mentor-subscription.controller";
+import * as courseController from "../../controller/adminController/course.controller"
 import { authCheck } from "../../middleware/auth.middleware";
 
 const router = express.Router();
@@ -44,8 +45,13 @@ router.post("/add-language", languageController.addLanguage);
 router.get("/remove-language/:id", languageController.deleteLanguage);
 
 
-//Mentor subscription
+// Course
+router.get('/get-all-course',courseController.getAllCourses)
+router.post('/add-course',courseController.addCourse)
+router.post('/add-topic',courseController.addTopics)
 
+
+//Mentor subscription
 router.get(
   "/mentor-subscription/get-all-mentor-subscriptors",
   mentorSubscriptionController.getAllMentorSubscripters

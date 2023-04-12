@@ -1,24 +1,24 @@
 import mongoose, {ObjectId, Schema, model} from 'mongoose';
 
 export interface Course{
-    language:ObjectId;
-    program:ObjectId;
+    language:string;
+    program:string;
     courseName:string;
     discription:string;
     numberOfTopics:number;
-    image:string;
+    imageUrl:string;
     videoUrl:string;
 }
 
 export const CourseSchema = new Schema<Course>({
 
-    language: {type: mongoose.Schema.Types.ObjectId, required: true,ref: 'language'},
-    program: {type: mongoose.Schema.Types.ObjectId, required: true,ref: 'category'},
+    language: {type: String, required: true,ref: 'language'},
+    program: {type: String, required: true,ref: 'category'},
     courseName:{type:String,required:true},
     discription:{type:String,required:true},
-    numberOfTopics:{type:Number,required:true},
+    numberOfTopics:{type:Number,},
     videoUrl:{type:String,required:true},
-    image:{type:String,required:true}
+    imageUrl:{type:String,required:true}
 
 }, {
     timestamps: true,

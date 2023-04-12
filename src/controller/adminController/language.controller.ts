@@ -67,5 +67,3 @@ export const addLanguage: RequestHandler = async (req, res) => {
 
     }
   }
-
-
