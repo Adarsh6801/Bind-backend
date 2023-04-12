@@ -10,7 +10,9 @@ export const getMentors: RequestHandler = async (req, res) => {
       .then((userId: any) => {
         res.status(200).send({ status: true, error: "all mentors", userId });
       });
-  } catch (err) {}
+  } catch (err) {
+     
+  }
 };
 
 // Block Mentors

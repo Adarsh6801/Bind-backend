@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 export interface User {
   id: string;
   email: string;
+  discription:string;
   password: string;
   name: string;
   address: string;
@@ -19,6 +20,7 @@ export const UserSchema = new Schema<User>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     address: { type: String },
+    discription: { type: String },
     status: { type: Boolean, default: true },
     profilePhotoUrl: {
       type: String,

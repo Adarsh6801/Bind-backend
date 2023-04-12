@@ -9,6 +9,7 @@ export interface Role{
     role:string;
     isRequestedForMentor:boolean;
     declineNumber:number;
+    isMentorUsers:Array<{userId:ObjectId,name:string,profileUrl:string}>;
 }
 
 export const RoleSchema = new Schema<Role>({
@@ -18,7 +19,8 @@ export const RoleSchema = new Schema<Role>({
     isMentorSubscription:{type:Boolean,default:false},
     role:{type:String,default:"user"},
     isRequestedForMentor:{type:Boolean,default:false},
-    declineNumber:{type:Number,default:0}
+    declineNumber:{type:Number,default:0},
+    isMentorUsers: [{userId:mongoose.Schema.Types.ObjectId, name:String,profileUrl:String}],
 }, {
     timestamps: true,
     toJSON:{

@@ -50,3 +50,36 @@ export const unblockUser: RequestHandler = async (req, res) => {
     console.log(error);
   }
 };
+export const singleUser: RequestHandler = async (req, res) => {
+  try {
+    console.log("hiiiii");
+    const  roleid  = req.params.id;
+    console.log(roleid, "role id ");
+    await RoleModel.findById({ _id: roleid })
+      .populate("userId")
+      .then((user) => {
+        console.log(user, "user usser");
+        if (user?.isMentor) {
+          res
+            .status(200)
+            .json({
+              status: true,
+              isMentor: true,
+              msg: "the user is mentor",
+              user,
+            });
+        } else {
+          res
+            .status(200)
+            .json({
+              status: true,
+              isMentor: false,
+              msg: "the user is mentor",
+              user,
+            });
+        }
+      });
+  } catch (error) {
+    console.log(error);
+  }
+};

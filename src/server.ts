@@ -3,12 +3,18 @@ import express from "express";
 import dotenv from "dotenv"
 dotenv.config({path:"../.env"})
 import cors from "cors";
+import bodyParser from "body-parser";
+import multer from "multer";
 const app=express();
+app.use(bodyParser.json());
 
 import { dbConnect } from "./configs/database.config";
 
 import usersRouter from "./routes/user/user.router"
 import adminRouter from "./routes/admin/admin.router"
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 dbConnect()
 
