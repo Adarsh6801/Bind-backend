@@ -8,6 +8,7 @@ export interface Course{
     numberOfTopics:number;
     imageUrl:string;
     videoUrl:string;
+    topic:ObjectId;
 }
 
 export const CourseSchema = new Schema<Course>({
@@ -18,7 +19,8 @@ export const CourseSchema = new Schema<Course>({
     discription:{type:String,required:true},
     numberOfTopics:{type:Number,},
     videoUrl:{type:String,required:true},
-    imageUrl:{type:String,required:true}
+    imageUrl:{type:String,required:true},
+    topic: {type: mongoose.Schema.Types.ObjectId,ref: 'topic'},
 
 }, {
     timestamps: true,

@@ -1,19 +1,36 @@
 import mongoose, {ObjectId, Schema, model} from 'mongoose';
 
-export interface Language{
-    courseId:ObjectId;
-    topicDiscription:Array<{heading:string,discription:string}>;
-    image:string;
-}
+export interface ISubtopic extends Document {
+    subtopic: string;
+  }
+  
+  const subtopicSchema = new Schema<ISubtopic>({
+    subtopic: { type: String },
+  });
+  
+  // Schema for topic
+  export interface ITopic extends Document {
+    topic: string;
+    discription: string;
+    subtopics: ISubtopic[];
+  }
+  export interface ITopics extends Document {
+    Courseid:ObjectId,
+    topics:ITopic[]
+  }
+  
+  const topicSchema = new Schema<ITopic>({
+    topic: { type: String },
+    discription: { type: String },
+    subtopics: [subtopicSchema],
+  }
+  );
 
-export const LanguageSchema = new Schema<Language>({
-
-    courseId: {type: mongoose.Schema.Types.ObjectId, required: true,ref: 'course'},
-
-    image:{type:String,required:true},
-    topicDiscription: [{heading:String, discription:String}],
-
-}, {
+  const topicsSchema=new Schema<ITopics>({
+    Courseid:{type:mongoose.Schema.Types.ObjectId,ref:'course'},
+    topics:[topicSchema],
+  },
+  {
     timestamps: true,
     toJSON:{
         virtuals: true
@@ -21,6 +38,10 @@ export const LanguageSchema = new Schema<Language>({
     toObject:{
         virtuals: true
     }
-});
+}
 
-export const LangugeModel = model<Language>('language', LanguageSchema);
+  )
+  
+
+
+export const TopicModel = model<ITopics>('topic', topicsSchema);
