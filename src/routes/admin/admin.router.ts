@@ -46,6 +46,8 @@ router.get("/get-all-course", courseController.getAllCourses);
 router.post("/add-course", courseController.addCourse);
 router.post("/add-topic", courseController.addTopics);
 router.get("/delete-course/:id", courseController.deleteCourse);
+router.get("/edit-course/:id",courseController.getEditCourse);
+router.post("/edit-course",courseController.editCourse);
 
 //Mentor subscription
 router.get(
