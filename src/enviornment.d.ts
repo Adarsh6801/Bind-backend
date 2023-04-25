@@ -11,7 +11,9 @@ declare global{
             APP_PASSWORD_EMAIL:string;
             CLOUD_NAME:string;
             API_KEY:string;
-            API_SECRET:string
+            API_SECRET:string;
+            RAZOR_PAY_KEY_ID:string;
+            RAZOR_PAY_SECREAT:string;
         }
     }
 }
