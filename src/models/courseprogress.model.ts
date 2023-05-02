@@ -3,17 +3,17 @@ import mongoose, {ObjectId, Schema, model} from 'mongoose';
 
 export interface courseProgress{
     id:string;
-    userId:ObjectId;
+    userId:string;
     courseId:ObjectId;
     courseProgress:Array<{
-        topic:number,date:Date,star:number,pending:string,pass:boolean
+        topic:string,date:Date,star:number,pending:string,pass:string
 }>;
 }
 
 export const CourseProgressSchema = new Schema<courseProgress>({
-    userId: {type: mongoose.Schema.Types.ObjectId, required: true,ref: 'user'},
+    userId: String,
     courseId: {type: mongoose.Schema.Types.ObjectId, required: true,ref: 'course'},
-    courseProgress: [{topic:Number, date:Date,star:Number,pending:String,pass:Boolean}],
+    courseProgress: [{topic:String, date:Date,star:Number,pending:String,pass:String}],
 }, {
     timestamps: true,
     toJSON:{

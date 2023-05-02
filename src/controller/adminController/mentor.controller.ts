@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { UserModel } from "../../models/user.model";
 import { RoleModel } from "../../models/role.model";
+import ActivityModel from "../../models/activity.model";
 
 // get all Mentors
 export const getMentors: RequestHandler = async (req, res) => {
@@ -50,12 +51,27 @@ export const unblockMentor: RequestHandler = async (req, res) => {
 //remove from mentor
 export const removeMentor:RequestHandler=async (req,res)=>{
     try{
+      let date = new Date()
+      const activities=[{
+        message:"You request has been canceled Sorry we are not able to put you mentor now",
+        date:date,
+        status:false,
+      }]
         const {roleid}=req.params;
         await RoleModel.findByIdAndUpdate(
             {_id:roleid},
             {$set:{isMentor:false,role:"user"}}
             )
-            .then((mentor)=>{
+            .then(async (mentor:any)=>{
+              const activity= await ActivityModel.findOne({userId:mentor.userId})
+              if(activity){
+               await ActivityModel.findOneAndUpdate({userId:mentor.userId},{$push:{activity:activities}})
+              }else{
+               await  ActivityModel.create({
+                 userId:mentor.userId,
+                 activity:activities
+               })
+              }
                 res
                 .status(200)
                 .send({ status: true, msg: "User removed from mentor" });
@@ -83,12 +99,28 @@ export const requestsForMentor: RequestHandler = async (req, res) => {
 // Accept the Mentor reques
 export const acceptRequestForMentor: RequestHandler = async (req, res) => {
   try {
+    let date= new Date()
     const { roleid } = req.params;
+    const activities=[{
+      message:"Your request has accepted welcomes you",
+      date:date,
+      status:true,
+    }]
     await RoleModel.findByIdAndUpdate(
       { _id: roleid },
       { $set: { isMentor: true, role: "mentor", isRequestedForMentor: false } }
-    ).then((result) => {
-      const user_role = result?.populate("userId").then((user) => {
+    ).then(async (result:any) => {
+      
+     const activity= await ActivityModel.findOne({userId:result.userId})
+     if(activity){
+      await ActivityModel.findOneAndUpdate({userId:result.userId},{$push:{activity:activities}})
+     }else{
+      await  ActivityModel.create({
+        userId:result.userId,
+        activity:activities
+      })
+     }
+      const user_role = result?.populate("userId").then((user:any) => {
         console.log(user.userId, "user user user user");
         const user_details = user.userId;
         res
@@ -109,6 +141,12 @@ export const acceptRequestForMentor: RequestHandler = async (req, res) => {
 
 export const declineRequestForMentor:RequestHandler=async (req,res)=>{
     try{
+      let date = new Date()
+      const activities=[{
+        message:"You request has been canceled Sorry we are not able to put you mentor now",
+        date:date,
+        status:false,
+      }]
         const { roleid } = req.params;        
         const user= await RoleModel.findOne({_id:roleid}).populate('userId')
         console.log(user,'role role role');
@@ -119,7 +157,16 @@ export const declineRequestForMentor:RequestHandler=async (req,res)=>{
         await RoleModel.findByIdAndUpdate(
             {_id:roleid},
             {$inc:{declineNumber:1}}
-        ).then(()=>{
+        ).then(async (result:any)=>{
+          const activity= await ActivityModel.findOne({userId:result.userId})
+     if(activity){
+      await ActivityModel.findOneAndUpdate({userId:result.userId},{$push:{activity:activities}})
+     }else{
+      await  ActivityModel.create({
+        userId:result.userId,
+        activity:activities
+      })
+     }
             res
             .status(200)
           .send({

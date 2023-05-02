@@ -3,8 +3,10 @@ import { CourseModel } from "../../models/course.model";
 import { UserModel } from "../../models/user.model";
 import { RoleModel } from "../../models/role.model";
 import { UserCourseModel } from "../../models/userCourse.model";
-import cron from "node-cron";
+// import cron from "node-cron";
 import { CourseProgressModel } from "../../models/courseprogress.model";
+import ActivityModel from "../../models/activity.model";
+
 
 export const getCourseById: RequestHandler = async (req, res) => {
   try {
@@ -114,11 +116,15 @@ export const exitCourse: RequestHandler = async (req, res) => {
     console.log(userId);
     await UserModel.findByIdAndUpdate(
       { _id: userId },
-      { $set: { currentCourse: "" } }
+      { $set: { currentCourse: "",} }
     );
+    await UserModel.findByIdAndUpdate(
+      {_id:userId},
+      {$unset:{currentMentor:1}}
+    )
     await RoleModel.findOneAndUpdate(
       { userId: userId },
-      { $set: { isCurrentCourse: false } }
+      { $set: { isCurrentCourse: false }}, { new: true } 
     );
     await UserCourseModel.findOneAndUpdate(
       { userId: userId, "coursesOfUser.activeCourse": true },
@@ -132,7 +138,10 @@ export const exitCourse: RequestHandler = async (req, res) => {
         msg: `You are exit from the ${course?.coursesOfUser[0].courseName}`,
       });
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    
+  }
 };
 
 export const userCurrentCourse: RequestHandler = async (req, res) => {
@@ -160,12 +169,12 @@ export const userCurrentCourse: RequestHandler = async (req, res) => {
                   (course: any) => course.activeCourse
                 );
                 console.log(activeCourses, "active curse");
-                await CourseProgressModel.findOne({ userId: userId }).then(
+             const progressTable=   await CourseProgressModel.findOne({ userId: userId }).then(
                   (progress: any) => {
                     console.log(progress, "progress...");
                     if (progress) {
                       const completedTopics = progress.courseProgress.filter(
-                        (completeTasks: any) => completeTasks.pass
+                        (completeTasks: any) => completeTasks.pass=="pass"
                       );
                       res.send({
                         status: true,
@@ -206,22 +215,126 @@ export const getCourseWithMentor: RequestHandler = (req, res) => {
   }
 };
 
-// Run the job every day at midnight
-cron.schedule("0 0 * * *", async () => {
-  // Find all user course documents that have active courses
-  const userCourseDocs = await UserCourseModel.find({
-    "coursesOfUser.activeCourse": true,
-  });
-
-  // Update the date of each active course in the array
-  userCourseDocs.forEach(async (userCourseDoc) => {
-    userCourseDoc.coursesOfUser.forEach((course) => {
-      if (course.activeCourse) {
-        course.date.setDate(course.date.getDate() + 1);
-      }
+export const getUserCourses: RequestHandler= async (req,res)=>{
+  try{
+    const payload = res.locals.payload;
+    const userId = payload.userId;
+    const userCourses=await UserCourseModel.findOne({userId:userId})
+    res.send({
+      status: true,
+      msg: `This are the users courses`,
+      userCourses
     });
+  }catch(error){
 
-    // Save the updated document
-    await userCourseDoc.save();
-  });
-});
+  }
+}
+
+export const updateProfilePhoto : RequestHandler= async (req,res)=>{
+  try{
+    const imageUrl=req.body.imageUrl
+    console.log(imageUrl,'image url...');
+    const payload = res.locals.payload;
+    const userId = payload.userId;
+
+    await UserModel.findByIdAndUpdate({_id:userId},{$set:{profilePhotoUrl:imageUrl}})
+    .then((user)=>{
+ 
+      res.send({msg:"Your photo is updated succesfullly"})
+    })
+
+  }catch(error){
+console.log(error);
+
+  }
+}
+
+export const updateUser:RequestHandler =async (req,res)=>{
+  try{
+    console.log(req.body,"reqbody is herer");
+    
+    const name=req.body.data.name
+    const title=req.body.data.title
+    const phone=req.body.data.phone
+    const discription=req.body.data.description
+
+    console.log(name,'name');
+    console.log(title,'title');
+    console.log(phone,'titphonee');
+    console.log(discription,'discription');
+    
+    const payload = res.locals.payload;
+    const userId = payload.userId;
+    await UserModel.findByIdAndUpdate({_id:userId},{$set:{name:name,title:title,phone:phone,discription:discription}})
+    .then((user:any)=>{
+      console.log(user,'userrr');
+      res.send({status:true,msg:`${user.name}  is updated successfuly`})
+      
+    })
+  }catch(error){
+
+  }
+}
+
+export const requestForMentor :RequestHandler =async (req,res)=>{
+  try{
+    console.log("checkign the ");
+    
+    const date=new Date()
+    const activities=[{
+      message:"You add a request for mentor",
+      date:date,
+      status:true,
+    }]
+    const payload = res.locals.payload;
+    const userId = payload.userId;
+    await RoleModel.findOneAndUpdate({userId:userId},{$set:{isRequestedForMentor:true}})
+   const userActivity= await ActivityModel.findOne({userId:userId})
+   console.log(userActivity,'adskfjhasdkf');
+   
+   if(userActivity){
+    console.log("adarsh");
+    await ActivityModel.findOneAndUpdate({userId:userId},{$push:{activity:activities}})
+    .then(()=>{
+      res.send({status:true,msg:`You have successfuly requested for a mentor`})
+    })
+   }else{
+    console.log("aiswary");
+    await  ActivityModel.create({
+      userId:userId,
+      activity:activities
+    })
+    .then(async (data)=>{
+
+      res.send({status:true,msg:`You have successfuly requested for a mentor`})
+    })
+    .catch((err)=>{
+      console.log(err);
+      
+    })
+   }
+   
+   
+  }catch(error){
+
+  }
+}
+// Run the job every day at midnight
+// cron.schedule("0 0 * * *", async () => {
+//   // Find all user course documents that have active courses
+//   const userCourseDocs = await UserCourseModel.find({
+//     "coursesOfUser.activeCourse": true,
+//   });
+
+//   // Update the date of each active course in the array
+//   userCourseDocs.forEach(async (userCourseDoc) => {
+//     userCourseDoc.coursesOfUser.forEach((course) => {
+//       if (course.activeCourse) {
+//         course.date.setDate(course.date.getDate() + 1);
+//       }
+//     });
+
+//     // Save the updated document
+//     await userCourseDoc.save();
+//   });
+// });

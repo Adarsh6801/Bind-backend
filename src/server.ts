@@ -1,5 +1,4 @@
 import express from "express";
-
 import dotenv from "dotenv"
 dotenv.config({path:"../.env"})
 import cors from "cors";
@@ -12,6 +11,7 @@ import { dbConnect } from "./configs/database.config";
 
 import usersRouter from "./routes/user/user.router"
 import adminRouter from "./routes/admin/admin.router"
+import mentorRouter from "./routes/mentor/mentor.router"
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -30,7 +30,8 @@ app.use(cors({
 }));
 app.use(express.json())
 app.use('/user',usersRouter);
-app.use('/admin',adminRouter)
+app.use('/admin',adminRouter);
+app.use('/mentor',mentorRouter);
 
 
 app.listen(PORT,()=>{

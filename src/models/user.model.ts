@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { ObjectId, Schema, model } from "mongoose";
 
 export interface User {
   id: string;
@@ -12,6 +12,12 @@ export interface User {
   currentCourse: string;
   profilePhotoUrl: string;
   loginType: string;
+  title:string;
+  currentMentor:ObjectId;
+  education:Array<{name:string}>
+  skill:Array<{name:string}>
+  experience:Array<{name:string}>
+
 }
 
 export const UserSchema = new Schema<User>(
@@ -21,14 +27,20 @@ export const UserSchema = new Schema<User>(
     password: { type: String, required: true },
     address: { type: String },
     discription: { type: String },
+    phone:{type:Number},
     currentCourse: { type: String },
     status: { type: Boolean, default: true },
     profilePhotoUrl: {
       type: String,
       default:
-        "https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F49917726%2Fretrieving-default-image-all-url-profile-picture-from-facebook-graph-api&psig=AOvVaw0oweu2-NEYc7-mGn9PVvrl&ust=1680774665765000&source=images&cd=vfe&ved=0CA8QjRxqFwoTCJD0uNi7kv4CFQAAAAAdAAAAABAE",
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
     },
     loginType: { type: String, default: "Local" },
+    title: { type: String, },
+    currentMentor: {type: mongoose.Schema.Types.ObjectId,ref: 'user'},
+    education: [{name:String}],
+    skill: [{name:String}],
+    experience: [{name:String}],
   },
   {
     timestamps: true,

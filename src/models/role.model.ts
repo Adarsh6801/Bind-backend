@@ -10,6 +10,7 @@ export interface Role{
     isRequestedForMentor:boolean;
     isCurrentCourse:boolean;
     declineNumber:number;
+    isSubscriptionRequest:boolean;
     isMentorUsers:Array<{userId:ObjectId,name:string,profileUrl:string}>;
 }
 
@@ -21,6 +22,7 @@ export const RoleSchema = new Schema<Role>({
     role:{type:String,default:"user"},
     isRequestedForMentor:{type:Boolean,default:false},
     declineNumber:{type:Number,default:0},
+    isSubscriptionRequest: {type: Boolean, default: false},
     isMentorUsers: [{userId:mongoose.Schema.Types.ObjectId, name:String,profileUrl:String}],
     isCurrentCourse:{type:Boolean,default:false}
 }, {

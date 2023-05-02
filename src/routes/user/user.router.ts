@@ -4,6 +4,7 @@ import * as AuthController from "../../controller/userController/auth.controller
 import * as CategoryController from "../../controller/userController/category.controller";
 import * as CourseController from "../../controller/userController/course.controller";
 import * as SubscriptionController from "../../controller/userController/subscription.controller"
+import * as ProfileController from "../../controller/userController/profile.controller"
 import { authCheck } from "../../middleware/auth.middleware";
 import { currentCourseCheck } from "../../middleware/currentCourse.middleware";
 
@@ -45,4 +46,13 @@ router.get(
   CourseController.exitCourse
 )
 router.post('/mentor-subscription',authCheck,SubscriptionController.subscriptionPayment)
+router.post ('/capture',authCheck,SubscriptionController.captureSubscription)
+
+router.get('/get-user-courses',authCheck,CourseController.getUserCourses)
+router.post('/update-photo',authCheck,CourseController.updateProfilePhoto)
+router.post('/update-user',authCheck,CourseController.updateUser)
+
+router.get('/request-for-mentor',authCheck,CourseController.requestForMentor)
+router.get('/all-activities',authCheck,ProfileController.allActivities)
+router.get('/remove-activiti/:id',authCheck,ProfileController.removeActivities)
 export default router;
